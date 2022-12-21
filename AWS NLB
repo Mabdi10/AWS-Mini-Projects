@@ -43,6 +43,7 @@ Auto-assign Public IP: Enable
 Security group also provided. 
 
 User data script is provide by ACloud Guru instructor and it running a yum update, installing Apache, and creating a very simple HTML landing page. 
+
 #!/bin/bash
 
 yum update -y && yum -y install httpd && systemctl enable httpd && systemctl start httpd
@@ -82,9 +83,12 @@ to test the Load Balancers, i've selected the NLB4LAB load balancer
  while true; do curl <LOAD BALANCER DNS NAME>; done
  this command run for multiple iterations and it's time to check CloudWatch monitoring tab metrics for network activity. 
  
+ ########
+ 
  THE RESULT FOR THE WEB PAGE.
  
- ![Screenshot 2022-12-20 at 6 59 54 PM](https://user-images.githubusercontent.com/105472036/208812043-d0330783-513d-46a9-b79e-e2f9215bd381.jpg)
+ 
+ 
 
 
 

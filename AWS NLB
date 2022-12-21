@@ -1,0 +1,91 @@
+#
+Creating and Configuring a Network Load Balancer in AWS
+
+##
+LAB DETAILS:
+
+In this hands-on lab, I will prepare the AWS environment for the Network Load Balancer (configuring subnets, network ACL, and EC2 instances). When the preparation is complete, I will create and configure a Network Load Balancer. After the configuration of the load balancer, I will work from the CLI to run a small test on the load balancer and view the results in the CloudWatch service.
+
+###
+Objectives: 
+
+- Create and configure a public subnet
+- Update VPC NACLs to allow HTTPS and SSH access
+- Launch and configure two new web EC2 instances
+- Create and configure a Network Load Balancer
+- Test and Monitor the Network load Balancer using CloudWatch.
+
+####
+
+Create and Configure a Subnet: 
+
+including: 
+Selected the VPC provided
+Name the subnet "Public B"
+Select the us-east-1b Availability Zone
+Updated the routes on the route table to have a route for 0.0.0.0/0 pointing to the internet gateway of the VPC
+Updated the explicit subnet associations to use the new Public B subnet.
+
+#####
+
+Edit the Network ACL, including selecting the Public B subnet
+Under the Network ACL tab, click on the network ACL link
+Edit the inbound rules to permit only ports 80, 443, 22, and 1024 through 65535.
+
+
+######
+
+Created two EC2 Instances, Web-A & Web-B with the same configuration process, expect the subnet 
+AMI: Amazon Linux 2
+Instance Type: t2.micro
+Subnet: us-east-1a with Web-A & us-east-1b with Web-B 
+Auto-assign Public IP: Enable
+Security group also provided. 
+
+User data script is provide by ACloud Guru instructor and it running a yum update, installing Apache, and creating a very simple HTML landing page. 
+#!/bin/bash
+
+yum update -y && yum -y install httpd && systemctl enable httpd && systemctl start httpd
+
+usermod -a -G apache ec2-user
+chown -R ec2-user:apache /var/www
+chmod 2775 /var/www
+find /var/www -type d -exec chmod 2775 {} \;
+find /var/www -type f -exec chmod 0664 {} \;
+echo "Request Handled by: Web-A" >> /var/www/html/index.html
+
+The only difference for both EC2 instances is the landing page one says Web-A and the other is Web-B. 
+
+
+#######
+
+Create and Configure a Network Load Balancer
+Load Balancer name: NLB4LAB and make sure it's interface facing, this is important because it can route requests from clients over the internet to the EC2 instances that are registered with the load balancer. 
+Scheme: internet-facing
+In the Network mapping section, used the provided VPC and select both us-east-1a and us-east-1b
+I've also created Create target group for the Listeners and routing section, this is important since it tells the load balancer where to direct traffic to 
+also added on Protocol: TCP & 
+Port: 80
+Health check protocol: TCP
+after that is done it's time to Register both the Web-A and Web-B instances to the nlbTargets target group and create the Load Balancer. 
+
+
+########
+
+Test and Monitor the Network Load Balancer
+
+to test the Load Balancers, i've selected the NLB4LAB load balancer
+ copied the DNS name of the load balancer to view the web page in a new browser tab
+ 
+ it's time to SSH into the server and initiate some traffic; this terminal will allow me to do that,
+ 
+ while true; do curl <LOAD BALANCER DNS NAME>; done
+ this command run for multiple iterations and it's time to check CloudWatch monitoring tab metrics for network activity. 
+ 
+ THE RESULT FOR THE WEB PAGE.
+ 
+ ![Screenshot 2022-12-20 at 6 59 54 PM](https://user-images.githubusercontent.com/105472036/208812043-d0330783-513d-46a9-b79e-e2f9215bd381.jpg)
+
+
+
+
